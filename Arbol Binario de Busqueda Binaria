@@ -1,1 +1,297 @@
 
+//Librerias
+#include <iostream>
+#include <stdlib.h>
+#include <stdio.h>
+
+using namespace std;
+
+//Definir nodo
+typedef struct nodo
+{
+     string Numero;
+     struct nodo *Izquierda, *Derecha;
+}
+*ArbolBinario;
+
+//Variables
+int NumeroNodos = 0;    //Nummero de nodos
+int NumeroInsertado = 0;     //Nodos menores que el numero ingresado
+
+
+//Estructuras de las colas
+struct NodoCola{
+    ArbolBinario ptr;
+    struct NodoCola *sgte;
+};
+
+struct Cola{
+    struct NodoCola *Delante;
+    struct NodoCola *Atras;
+};
+
+//IniciarCola
+void IniciaCola(struct Cola &q)
+{
+    q.Delante = NULL;
+    q.Atras = NULL;
+}
+
+//En la Cola
+void EnCola(struct Cola &q, ArbolBinario n)
+{
+     struct NodoCola *Posicion;
+     Posicion = new(struct NodoCola);
+     Posicion->ptr = n;
+     Posicion->sgte = NULL;
+     if(q.Delante==NULL)
+         q.Delante = Posicion;
+     else
+         (q.Atras)->sgte = Posicion;
+     q.Atras = Posicion;
+}
+
+//Desendiente de la cola
+ArbolBinario DesendienteCola(struct Cola &q)
+{
+    struct NodoCola *Posicion;
+    Posicion = q.Delante;
+    ArbolBinario n = Posicion->ptr;
+    q.Delante = (q.Delante)->sgte;
+    delete(Posicion);
+    return n;
+}
+
+//Crear nodos
+ArbolBinario CrearNodo(string ElementoX)
+{
+     ArbolBinario NuevoNodo = new(struct nodo);
+     NuevoNodo->Numero = ElementoX;
+     NuevoNodo->Izquierda = NULL;
+     NuevoNodo->Derecha = NULL;
+
+     return NuevoNodo;
+}
+
+//Insertar Nodos
+void Insertar(ArbolBinario &Arbol, string ElementoX)
+{
+     if(Arbol==NULL)
+     {
+           Arbol = CrearNodo(ElementoX);
+           cout<<"\nSe ha creado correctamente el nodo"<<endl;
+           system("cls");
+     }
+     else if(ElementoX < Arbol->Numero)
+          Insertar(Arbol->Izquierda, ElementoX);
+     else if(ElementoX > Arbol->Numero)
+          Insertar(Arbol->Derecha, ElementoX);
+}
+
+//Ordenar en PreOrden
+void PreOrden(ArbolBinario Arbol)
+{
+     if(Arbol!=NULL)
+     {
+          cout << Arbol->Numero <<" ";
+          PreOrden(Arbol->Izquierda);
+          PreOrden(Arbol->Derecha);
+     }
+}
+
+//Ordenar
+void EnOrden(ArbolBinario Arbol)
+{
+     if(Arbol!=NULL)
+     {
+          EnOrden(Arbol->Izquierda);
+          cout << Arbol->Numero << " ";
+          EnOrden(Arbol->Derecha);
+     }
+}
+
+//Ordenar en PostOrden
+void PostOrden(ArbolBinario Arbol)
+{
+     if(Arbol!=NULL)
+     {
+          EnOrden(Arbol->Izquierda);
+          EnOrden(Arbol->Derecha);
+          cout << Arbol->Numero << " ";
+     }
+}
+
+//Ver Arbol
+void VerArbol(ArbolBinario Arbol, int n)
+{
+     if(Arbol==NULL)
+          return;
+     VerArbol(Arbol->Derecha, n+1);
+
+     for(int i=0; i<n; i++)
+         cout<<"   ";
+
+     NumeroNodos++;
+     cout<< Arbol->Numero <<endl;
+
+     VerArbol(Arbol->Izquierda, n+1);
+}
+
+//Busqueda de Nodos
+bool BusquedaNodos(ArbolBinario Arbol, string Dato)
+{
+     int EncontradoNodo=0;   // 0 indica que lo encontre
+
+     if(Arbol==NULL)
+        return EncontradoNodo;
+
+     if(Dato<Arbol->Numero)
+         EncontradoNodo = BusquedaNodos(Arbol->Izquierda, Dato);
+
+     else if(Dato> Arbol->Numero)
+         EncontradoNodo = BusquedaNodos(Arbol->Derecha, Dato);
+
+     else
+        EncontradoNodo = 1;   // Son iguales se encontro el nodo
+
+     return EncontradoNodo;
+}
+
+//Unir Arboles Binarios
+ArbolBinario UnirArbolB(ArbolBinario Izquierda, ArbolBinario Derecha)
+{
+    if(Izquierda==NULL) return Derecha;
+    if(Derecha==NULL) return Izquierda;
+
+    ArbolBinario Centro = UnirArbolB(Izquierda->Derecha, Derecha->Izquierda);
+    Izquierda->Derecha = Centro;
+    Derecha->Izquierda = Izquierda;
+    return Derecha;
+}
+
+//Eliminar Nodos
+void EliminarNodo(ArbolBinario &Arbol, string ElementoX)
+{
+     if(Arbol==NULL) return;
+
+     if(ElementoX<Arbol->Numero)
+         EliminarNodo(Arbol->Izquierda, ElementoX);
+     else if(ElementoX>Arbol->Numero)
+         EliminarNodo(Arbol->Derecha, ElementoX);
+
+     else
+     {
+         ArbolBinario Posicion = Arbol;
+         Arbol = UnirArbolB(Arbol->Izquierda, Arbol->Derecha);
+         delete Posicion;
+     }
+}
+
+void Menu()
+{
+     cout << "\n\tArbol binario\n\n";
+     cout << "(1) Insertar elemento\n";
+     cout << "(2) Mostrar Arbol\n";
+     cout << "(3) Ordenar Nodos\n";
+     cout << "(4) Buscar Nodos\n";
+     cout << "(5) Eliminar elemento\n";
+     cout << "(6) Salir\n";
+     cout << "\n\nSeleccione una opcion: ";
+}
+
+void MenuOrden()
+{
+     cout << endl;
+     cout << "(1) En Orden     \n";
+     cout << "(2) Pre Orden    \n";
+     cout << "(3) Post Orden   \n";
+     cout << "\nSeleccione una opcion: ";
+}
+
+int main()
+{
+    ArbolBinario Arbol = NULL;
+    string ElementoX;
+    int OpcionMenu, OpcionOrden,CantidadNodos,Contador;
+
+    do
+    {
+        Menu();  cin>> OpcionMenu;
+        cout << endl;
+        system("cls");
+
+        switch(OpcionMenu)
+        {
+                case 1: //Insertar Nodo
+                    cout<<"Cuantos nodos deseas crear: ";
+                    cin>>CantidadNodos;
+                    system("cls");
+                    for(Contador=1;Contador<=CantidadNodos;Contador++)
+                    {
+                        cout << "\nInserte un valor ("<<Contador<<"): ";  cin>> ElementoX;
+                        Insertar( Arbol, ElementoX);
+                    }
+                break;
+
+                case 2: //Ver Arbol
+                    VerArbol(Arbol, 0);
+                break;
+
+                case 3: //Ordenar Nodos
+                    MenuOrden();  cin>> OpcionOrden;
+                    cout<<"\n"<<endl;
+
+                    if(Arbol!=NULL)
+                    {
+                        switch(OpcionOrden)
+                        {
+                            case 1:
+                                EnOrden(Arbol); break;
+                            case 2:
+                                PreOrden(Arbol); break;
+                            case 3:
+                                PostOrden(Arbol); break;
+                        }
+                    }
+                    else
+                        cout << "\n[Error] Arbol Vacio";
+                break;
+
+               case 4: //Buscar Nodos
+                    bool band;
+
+                    cout<<"Valor a buscar: "; cin>> ElementoX;
+
+                    band = BusquedaNodos(Arbol,ElementoX);
+
+                    if(band==1)
+                       cout << "\nSe ha encontrado el nodo";
+                    else
+                       cout << "\n[Error] No se ha encontrado el nodo";
+                break;
+
+                case 5: //Eliminar Nodos
+                    cout<<"Nodo a eliminar: "; cin>> ElementoX;
+                    EliminarNodo(Arbol, ElementoX);
+                    cout << "\nNodo eliminado correctamente";
+                break;
+
+                case 6: //Salir
+                    exit(0);
+                    cout<<"Hasta pronto!\n\n"<<endl;
+                    system("cls");
+                break;
+
+                default: //Opcion Invalida
+                    cout<<"[Error] Seleccionaste una opcion invalida\n\n"<<endl;
+                    system("cls");
+                break;
+        }
+
+        //Limpiar pantalla
+        cout<<"\n\n"<<endl;
+        system("pause");
+        system("cls");
+
+    }while(OpcionMenu!=6);
+}
